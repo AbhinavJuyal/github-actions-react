@@ -3,6 +3,8 @@ on: [push]
 jobs:
   build-app:
     runs-on: ubuntu-latest
+    outputs:
+      text: ${{ steps.finished.outputs.text }}
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
@@ -15,4 +17,12 @@ jobs:
       - name: Deploying the Project
         run: yarn deploy
       - name: Setup Finish
-        run: echo "Hurray!!"
+        id: finished
+        run: echo "::set-output name=text::hello-world-from-build-job"
+  test-app:
+    needs: build-app
+    runs-on: ubuntu-latest
+    env:
+      MY_JOB_OUTPUT: ${{ needs.build-app.outputs.text }}
+    steps:
+      - run: echo $MY_JOB_OUTPUT
